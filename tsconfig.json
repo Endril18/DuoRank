@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "outDir": "./dist",
+    "rootDir": "./"
+  },
+  "include": [
+    "*.ts"  // Ou se preferir, algo como "src/**/*.ts", se estiver em um diretório src
+  ],
+  "exclude": [
+    "node_modules", "dist"
+  ]
+}

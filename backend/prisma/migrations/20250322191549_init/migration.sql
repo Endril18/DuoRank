@@ -5,7 +5,10 @@ CREATE TABLE "Poliglota" (
     "idiomas" TEXT NOT NULL,
     "xp" INTEGER NOT NULL DEFAULT 0,
     "ofensiva" INTEGER NOT NULL DEFAULT 0,
-    "ultimaAtividade" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "ultimaAtividade" TIMESTAMP(3),
 
     CONSTRAINT "Poliglota_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Poliglota_nome_key" ON "Poliglota"("nome");

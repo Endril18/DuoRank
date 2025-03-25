@@ -1,45 +1,76 @@
-import {PrismaClient} from "@prisma/client"; //importar o client do prisma que vai lidar com o banco de dados
-//import { api } from "../providers/api";
+import {PrismaClient, Poliglota } from "@prisma/client"; //importar o client do prisma que vai lidar com o banco de dados
+
 import axios from  "axios";
 
 const prisma = new PrismaClient()
 
 class PoliglotasService{
 
-    async buscarPoliglota(username: string) {
+    async buscarPoliglota(username: string): Promise<Poliglota>{
         try {
-            const url = `https://www.duolingo.com/2017-06-30/users?username=${username}`;
+            const url = `https://www.duolingo.com/2017-06-30/users?username=${username}`; // usar .env
             const response = await axios.get(url, {
                 headers: {
                     'Accept': 'application/json',
                     'User-Agent': 'Mozilla/5.0' // Simula um navegador
                 }
             });
-            return response.data;
+            return this.extrairDados(response.data);
         } catch (error) {
             console.error("Erro ao buscar usuário:", error);
             throw new Error("Erro ao obter os dados do usuário");
         }
-
     }
 
-    // //criando metodos para manipular os usuarios
-    // async criar(dados: { nome: string; idiomas: string; xp?: number; ofensiva?: number; ultimaAtividade?: Date }) {
-    //     return await prisma.poliglota.create({ data: dados });
-    // }
+    async extrairDados(json: any): Promise<Poliglota> {
+        //console.log("Dados recebidos da API:", JSON.stringify(json, null, 2));
+        const user = json.users[0];
+        return {
+            id: 1,
+            nome: user.username,
+            idiomas: user.courses.map((curso: any) => curso.title).join(", "),
+            xp: user.totalXp,
+            ofensiva: user.streakData?.currentStreak?.length,
+            ultimaAtividade: user.streakData?.currentStreak?.endDate
+            ? new Date(user.streakData.currentStreak.endDate)
+            : null,
+        };
+    }
 
-    // async listar() {
-    //     return await prisma.poliglota.findMany();
-    // }
+    async criar(nome: string, idiomas: string, xp?: number, ofensiva?: number, ultimaAtividade?: Date | null): Promise<Poliglota> {
+            try {
+                console.log("Criando poliglota com:", { nome, idiomas, xp, ofensiva, ultimaAtividade });
 
-    // async editar(id: number, dados: Partial<{ nome: string; idiomas: string; xp: number; ofensiva: number; ultimaAtividade: Date }>) {
-    //     return await prisma.poliglota.update({ where: { id }, data: dados });
-    // }
+            return await prisma.poliglota.create({ data: { nome, idiomas, xp, ofensiva, ultimaAtividade} });
 
-    // async remover(id: number) {
-    //     return await prisma.poliglota.delete({where: {id} });
-    // }
+        } catch (error: any) {
+            if (error.code === 'P2002') { // Prisma retorna P2002 quando há violãção de unique
+                throw new Error("Usuário já existe!");
+            }
+            throw error;
+        }
+    }
 
+    async listar(): Promise<Poliglota[]> {
+        return await prisma.poliglota.findMany();
+    }
+
+    async editar(id: number, nome: string, idiomas: string, xp?: number, ofensiva?: number, ultimaAtividade?: Date) {
+        return await prisma.poliglota.update({
+            where: { id },
+            data: {
+                nome,
+                idiomas,
+                xp,
+                ofensiva,
+                ultimaAtividade
+            },
+        });
+    }
+
+    async remover(id: number) {
+        return await prisma.poliglota.delete({where: {id} });
+    }
 }
 
 export default new PoliglotasService();

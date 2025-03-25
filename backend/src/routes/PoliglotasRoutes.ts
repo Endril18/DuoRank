@@ -1,15 +1,20 @@
 import { Router, Request, Response, NextFunction } from "express";
 import PoliglotasController from "../controllers/PoliglotasController";
 
-const routes = Router();
 
 // Middleware para tratar funções assíncronas corretamente
 const asyncHandler = (fn: Function) =>
     (req: Request, res: Response, next: NextFunction) => {
-        Promise.resolve(fn(req, res, next)).catch(next);
-};
+        return Promise.resolve(fn(req, res, next)).catch(next);
+    };
+
+const routes = Router();
 
 // 🔹 Agora a rota recebe `username` como parâmetro corretamente
-routes.get("/poliglota/:username", asyncHandler((req, res) => PoliglotasController.buscar(req, res)));
+routes.get("/:username", asyncHandler((req, res) => PoliglotasController.buscar(req, res)));
+routes.put("/:id", asyncHandler((req, res) => PoliglotasController.editar(req, res)));
+routes.delete("/:id", asyncHandler((req, res) => PoliglotasController.remover(req, res)));
+routes.get("/", asyncHandler((req, res) => PoliglotasController.listar(req, res)));
+
 
 export default routes;

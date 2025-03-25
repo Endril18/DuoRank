@@ -4,14 +4,14 @@ class Poliglota {
   idiomas: string;
   xp: number;
   ofensiva: number;
-  dataUltimaAtividade: Date;
+  ultimaAtividade: Date;
 
-  constructor(id: number, nome: string, idiomas: string, xp: number, ofensiva: number, dataUltimaAtividade: Date) {
+  constructor(id: number, nome: string, idiomas: string, xp: number, ofensiva: number, ultimaAtividade: Date) {
     this.id = id;
     this.nome = nome;
     this.idiomas = "";
     this.xp = 0;
     this.ofensiva = 0;
-    this.dataUltimaAtividade = new Date(0);
+    this.ultimaAtividade = new Date(0);
   }
 }

@@ -15,6 +15,7 @@ routes.get("/:username", asyncHandler((req, res) => PoliglotasController.buscar(
 routes.put("/:id", asyncHandler((req, res) => PoliglotasController.editar(req, res)));
 routes.delete("/:id", asyncHandler((req, res) => PoliglotasController.remover(req, res)));
 routes.get("/", asyncHandler((req, res) => PoliglotasController.listar(req, res)));
+routes.put("/atualizar-todos", asyncHandler((req, res) => PoliglotasController.atualizarTodos(req, res)));
 
 
 export default routes;

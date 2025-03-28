@@ -1,12 +1,12 @@
 import {PrismaClient, Poliglota } from "@prisma/client"; //importar o client do prisma que vai lidar com o banco de dados
-
+import { DadosDuolingo } from "../types/poliglota";
 import axios from  "axios";
 
 const prisma = new PrismaClient()
 
 class PoliglotasService{
 
-    async buscarPoliglota(username: string): Promise<Poliglota>{
+    async buscarPoliglota(username: string): Promise<DadosDuolingo>{
         try {
             const url = `https://www.duolingo.com/2017-06-30/users?username=${username}`; // usar .env
             const response = await axios.get(url, {
@@ -22,11 +22,40 @@ class PoliglotasService{
         }
     }
 
-    async extrairDados(json: any): Promise<Poliglota> {
+
+    // 🔄 Atualizar dados de todos os usuários cadastrados
+    async atualizarTodosPoliglotas() {
+        try {
+            const poliglotas = await prisma.poliglota.findMany(); // Busca todos do banco
+
+            for (const poliglota of poliglotas) {
+                const usuarioAtualizado = await this.buscarPoliglota(poliglota.nome);
+
+                if (usuarioAtualizado) {
+                    await prisma.poliglota.update({
+                        where: { id: poliglota.id },
+                        data: {
+                            idiomas: usuarioAtualizado.idiomas, // Atualiza idiomas
+                            xp: usuarioAtualizado.xp,
+                            ofensiva: usuarioAtualizado.ofensiva,
+                            ultimaAtividade: usuarioAtualizado.ultimaAtividade, // Atualiza última atividade
+                        },
+                    });
+
+                    console.log(`✅ Usuário ${poliglota.nome} atualizado!`);
+                } else {
+                    console.warn(`⚠️ Usuário ${poliglota.nome} não encontrado no Duolingo.`);
+                }
+            }
+        } catch (error) {
+            console.error("❌ Erro ao atualizar poliglotas:", error);
+        }
+    }
+
+    async extrairDados(json: any): Promise<DadosDuolingo> {
         //console.log("Dados recebidos da API:", JSON.stringify(json, null, 2));
         const user = json.users[0];
         return {
-            id: 1,
             nome: user.username,
             idiomas: user.courses.map((curso: any) => curso.title).join(", "),
             xp: user.totalXp,

@@ -3,6 +3,16 @@ import PoliglotasService from "../services/PoliglotasService";
 
 class PoliglotasController {
 
+    async atualizarTodos(req: Request, res: Response){
+        try {
+            await PoliglotasService.atualizarTodosPoliglotas();
+            return res.status(200).json({ mensagem: "Informações dos Poliglotas atualizadas com sucesso!"})
+        } catch (error) {
+            console.error("Erro no controller ao atualizar:", error);
+            return res.status(500).json({ erro: "Erro ao atualizar informações dos poliglotas."});
+        }
+    }
+
     async buscar(req: Request, res: Response): Promise<Response> {
         try {
             const { username } = req.params; // Obtém o username da URL

@@ -1,6 +1,9 @@
 import {PrismaClient, Poliglota } from "@prisma/client"; //importar o client do prisma que vai lidar com o banco de dados
 import { DadosDuolingo } from "../types/poliglota";
 import axios from  "axios";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const prisma = new PrismaClient()
 
@@ -8,7 +11,7 @@ class PoliglotasService{
 
     async buscarPoliglota(username: string): Promise<DadosDuolingo>{
         try {
-            const url = `https://www.duolingo.com/2017-06-30/users?username=${username}`; // usar .env
+            const url = `${process.env.BASE_ENDPOINT_URL}${username}`; // usar .env
             const response = await axios.get(url, {
                 headers: {
                     'Accept': 'application/json',

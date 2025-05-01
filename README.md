@@ -9,6 +9,6 @@ O **DuoRank** é um sistema criado para ajudar um grupo de usuários do Duolingo
   
 ## ⚙️ Tecnologias Usadas
 
-- **Frontend**: React, Vite (configuração rápida e otimizada)
+- **Frontend**: React, Vite
 - **Backend**: Node.js (Express), Prisma ORM
 - **Banco de Dados**: PostgreSQL

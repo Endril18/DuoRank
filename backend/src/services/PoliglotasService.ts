@@ -26,37 +26,53 @@ class PoliglotasService{
     }
 
 
-    // 🔄 Atualizar dados de todos os usuários cadastrados
+    // Atualizar dados de todos os usuários cadastrados
     async atualizarTodosPoliglotas() {
         try {
-            const poliglotas = await prisma.poliglota.findMany(); // Busca todos do banco
+            const poliglotas = await prisma.poliglota.findMany(); // Busca todos os poliglotas do banco
 
             for (const poliglota of poliglotas) {
-                const usuarioAtualizado = await this.buscarPoliglota(poliglota.nome);
+                const usuarioAtualizado = await this.buscarPoliglota(poliglota.nome); // Busca os dados atualizados do Duolingo
 
                 if (usuarioAtualizado) {
+                    let xpAlterado = 0;
+
+                    // Verifica se houve alteração no XP
+                    if (usuarioAtualizado.xp !== poliglota.xp) {
+                        xpAlterado = usuarioAtualizado.xp - poliglota.xp; // Calcula a diferença de XP
+                    }
+
+                    // Atualiza dados do poliglota se necessário
+                    const dadosAtualizados = {
+                        idiomas: usuarioAtualizado.idiomas,
+                        xp: usuarioAtualizado.xp,
+                        ofensiva: usuarioAtualizado.ofensiva,
+                        ultimaAtividade: usuarioAtualizado.ultimaAtividade,
+                    };
+
+                    // Se houver alguma alteração, atualiza o poliglota
                     await prisma.poliglota.update({
                         where: { id: poliglota.id },
-                        data: {
-                            idiomas: usuarioAtualizado.idiomas, // Atualiza idiomas
-                            xp: usuarioAtualizado.xp,
-                            ofensiva: usuarioAtualizado.ofensiva,
-                            ultimaAtividade: usuarioAtualizado.ultimaAtividade, // Atualiza última atividade
-                        },
+                        data: dadosAtualizados,
                     });
 
-                    console.log(`✅ Usuário ${poliglota.nome} atualizado!`);
+                    console.log(`Usuário ${poliglota.nome} atualizado!`);
+
+                    // Se o XP foi alterado, registra no histórico
+                    if (xpAlterado !== 0) {
+                        await this.registrarXP(poliglota.id, xpAlterado); // Registra a alteração no histórico de XP
+                    }
+
                 } else {
-                    console.warn(`⚠️ Usuário ${poliglota.nome} não encontrado no Duolingo.`);
+                    console.warn(`Usuário ${poliglota.nome} não encontrado no Duolingo.`);
                 }
             }
         } catch (error) {
-            console.error("❌ Erro ao atualizar poliglotas:", error);
+            console.error("Erro ao atualizar poliglotas:", error);
         }
     }
 
     async extrairDados(json: any): Promise<DadosDuolingo> {
-        //console.log("Dados recebidos da API:", JSON.stringify(json, null, 2));
         const user = json.users[0];
         return {
             nome: user.username,
@@ -83,15 +99,14 @@ class PoliglotasService{
                     await this.registrarXP(poliglota.id, xp);  // Registra o XP inicial
                 }
 
+            return poliglota;
 
-                return poliglota;
-
-        } catch (error: any) {
-            if (error.code === 'P2002') { // Prisma retorna P2002 quando há violãção de unique
-                throw new Error("Usuário já existe!");
+            } catch (error: any) {
+                if (error.code === 'P2002') { // Prisma retorna P2002 quando há violãção de unique
+                    throw new Error("Usuário já existe!");
+                }
+                throw error;
             }
-            throw error;
-        }
     }
 
     async listar(): Promise<Poliglota[]> {
@@ -99,6 +114,27 @@ class PoliglotasService{
     }
 
     async editar(id: number, nome: string, idiomas: string, xp?: number, ofensiva?: number, ultimaAtividade?: Date) {
+        // Pegar o xp atual
+        const poliglotaAntigo = await prisma.poliglota.findUnique({
+            where: { id },
+        })
+
+        if (!poliglotaAntigo) {
+            throw new Error("Poliglota não encontrado");
+        }
+
+        // Se houve alterações no xp, registrar
+        let xpAlterado = 0;
+        if (xp && xp !== poliglotaAntigo.xp) {
+            xpAlterado = xp - poliglotaAntigo.xp; // Diferença de xp
+        }
+
+        // Caso houve alteração  no XP, registrar
+        if (xpAlterado !== 0) {
+            await this.registrarXP(id, xpAlterado)
+        }
+
+        // Atualiza os dados do poliglota
         return await prisma.poliglota.update({
             where: { id },
             data: {
@@ -127,6 +163,66 @@ class PoliglotasService{
         } catch (error) {
             console.error("Erro ao registrar XP:", error);
             throw new Error("Erro ao registrar XP.");
+        }
+    }
+
+    async rankPorPeriodo(periodo: 'semanal' | 'mensal' | 'anual') {
+        try {
+            // Define o intervalo de datas com base no período escolhido
+            let startDate: Date;
+            const endDate = new Date(); // Data atual
+
+            if (periodo === 'semanal') {
+                startDate = new Date();
+                startDate.setDate(endDate.getDate() - 7); // 7 dias atrás
+            } else if (periodo === 'mensal') {
+                startDate = new Date();
+                startDate.setMonth(endDate.getMonth() - 1); // 1 mês atrás
+            } else if (periodo === 'anual') {
+                startDate = new Date();
+                startDate.setFullYear(endDate.getFullYear() - 1); // 1 ano atrás
+            } else {
+                throw new Error('Período inválido');
+            }
+
+            // Consulta o histórico de XP dos poliglotas dentro do período
+            const ranking = await prisma.historicoXP.findMany({
+                where: {
+                    data: {
+                        gte: startDate, // Data de início do período
+                        lte: endDate,   // Data final (hoje)
+                    },
+                },
+                orderBy: {
+                    xpAlterado: 'desc', // Ordena pelo XP alterado em ordem decrescente
+                },
+                include: {
+                    poliglota: true, // Inclui os dados do poliglota na consulta
+                },
+            });
+
+            // Verificar se há dados no histórico
+            if (!ranking || ranking.length === 0) {
+                return [];  // Caso não haja dados, retorna um array vazio
+            }
+
+            // Agrupando os poliglotas pelo ID e somando os XP ganhos
+            const rankingAgregado = ranking.reduce((acc: any, historico) => {
+                const poliglotaId = historico.poliglota.id;
+                if (!acc[poliglotaId]) {
+                    acc[poliglotaId] = { poliglota: historico.poliglota, xpTotal: 0 };
+                }
+                acc[poliglotaId].xpTotal += historico.xpAlterado; // Soma o XP alterado
+                return acc;
+            }, {});
+
+            // Ordenando os poliglotas pelo XP total
+            const rankingOrdenado = Object.values(rankingAgregado).sort((a: any, b: any) => b.xpTotal - a.xpTotal);
+
+            return rankingOrdenado;  // Retorna o ranking ordenado
+        } catch (error) {
+            console.error("Erro ao gerar ranking por período:", error);
+            throw new Error("Erro ao gerar ranking");
         }
     }
 }

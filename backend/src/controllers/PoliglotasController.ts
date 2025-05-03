@@ -33,14 +33,14 @@ class PoliglotasController {
         try {
             const { username } = req.body;
 
+            if (!username) {
+                return res.status(400).json({ error: "O campo 'username' é obrigatório." });
+            }
+
             const usuario = await PoliglotasService.buscarPoliglota(username);
 
             if (!usuario) {
                 return res.status(404).json({ error: "Usuário não encontrado no Duolingo." });
-            }
-
-            if (!username) {
-                return res.status(400).json({ error: "O campo 'username' é obrigatório." });
             }
 
             // Cria o poliglota no banco
@@ -50,7 +50,7 @@ class PoliglotasController {
 
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ error: "Erro ao criar ." });
+            return res.status(500).json({ error: "Erro ao adicionar poliglota." });
         }
     }
 
@@ -61,7 +61,7 @@ class PoliglotasController {
             return res.json(poliglota);
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ error: "Erro ao listar." });
+            return res.status(500).json({ error: "Erro ao listar poliglotas." });
         }
     }
 
@@ -69,6 +69,7 @@ class PoliglotasController {
         try {
             const id = Number(req.params.id);
             const { nome, idiomas, xp, ofensiva, ultimaAtividade } = req.body;
+
             const poliglota = await PoliglotasService.editar(id, nome, idiomas, xp, ofensiva, ultimaAtividade);
             return res.json(poliglota);
         } catch (error) {
@@ -84,9 +85,25 @@ class PoliglotasController {
             return res.status(204).send();
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ error: "Erro ao remover ." });
+            return res.status(500).json({ error: "Erro ao remover." });
         }
     }
+
+    async rank(req: Request, res: Response) {
+        try {
+          const { periodo } = req.query; // Obtém o período solicitado (semanal, mensal, anual)
+
+          if (!periodo || !['semanal', 'mensal', 'anual'].includes(periodo as string)) {
+            return res.status(400).json({ error: 'Período inválido. Use "semanal", "mensal" ou "anual".' });
+          }
+
+          const ranking = await PoliglotasService.rankPorPeriodo(periodo as 'semanal' | 'mensal' | 'anual');
+          return res.json(ranking);  // Retorna o ranking gerado pelo serviço
+        } catch (error) {
+          console.error("Erro ao obter ranking:", error);
+          return res.status(500).json({ error: "Erro ao gerar ranking." });
+        }
+      }
 }
 
 

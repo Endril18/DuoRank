@@ -29,9 +29,7 @@ const pedirUsuario = () => {
         return pedirUsuario(); // Pergunta novamente
       }
 
-      //console.log('Dados encontrados para o usuário:', usuario);
-
-      // Passa os dados de forma correta para o req.body
+      // Passa os dados para o req.body
       const req = { body: { username: usuario.nome, idiomas: usuario.idiomas, xp: usuario.xp, ofensiva: usuario.ofensiva, ultimaAtividade: usuario.ultimaAtividade }};
       const res = {
         status: (statusCode) => {

@@ -1,7 +1,7 @@
-import readline from "readline";
-import dotenv from "dotenv";
-import PoliglotaController from "./backend/src/controllers/PoliglotasController";
-import { Request, Response } from "express";
+import readline from 'readline';
+import dotenv from 'dotenv';
+import PoliglotaController from './backend/src/controllers/PoliglotasController';
+import { Request, Response } from 'express';
 
 dotenv.config();
 
@@ -27,7 +27,7 @@ const createMockResponse = () => {
 
 // Função para testar o método `rank()`
 const testarRank = async () => {
-  rl.question('Escolha o período (semanal, mensal, anual): ', async (periodo) => {
+  rl.question('Escolha o período (diario, semanal, anual): ', async (periodo) => {
     try {
       const req = { query: { periodo } } as Request; // Simulando o request com o parâmetro "periodo"
       const res = createMockResponse(); // Simulando o response

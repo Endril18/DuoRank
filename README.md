@@ -6,7 +6,7 @@ O **DuoRank** é um sistema criado para ajudar um grupo de usuários do Duolingo
 - **Ranking**: Visualize um ranking de todos os membros do grupo com base nas suas atividades no Duolingo. (Implementar)
 - **Perfil do Usuário**: Detalhes simples sobre a última atividade de cada usuário. (Implementar)
 - **Monitoramento de Atividade**: Verifica se o usuário completou a lição do dia no Duolingo. (Implementar)
-  
+
 ## ⚙️ Tecnologias Usadas
 
 - **Frontend**: React, Vite

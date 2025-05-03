@@ -73,7 +73,18 @@ class PoliglotasService{
             try {
                 console.log("Criando poliglota com:", { nome, idiomas, xp, ofensiva, ultimaAtividade });
 
-            return await prisma.poliglota.create({ data: { nome, idiomas, xp, ofensiva, ultimaAtividade} });
+                // Criar o poliglota no banco
+                const poliglota = await prisma.poliglota.create({
+                     data: { nome, idiomas, xp, ofensiva, ultimaAtividade}
+                });
+
+                // Registrar XP
+                if (xp) {
+                    await this.registrarXP(poliglota.id, xp);  // Registra o XP inicial
+                }
+
+
+                return poliglota;
 
         } catch (error: any) {
             if (error.code === 'P2002') { // Prisma retorna P2002 quando há violãção de unique
@@ -102,6 +113,21 @@ class PoliglotasService{
 
     async remover(id: number) {
         return await prisma.poliglota.delete({where: {id} });
+    }
+
+    async registrarXP(poliglotaId: number, xpAlterado: number) {
+        try {
+            // Registra a alteração de XP na tabela HistoricoXP
+            await prisma.historicoXP.create({
+                data: {
+                    poliglotaId: poliglotaId,
+                    xpAlterado: xpAlterado,  // Quantos pontos de XP foram alterados
+                },
+            });
+        } catch (error) {
+            console.error("Erro ao registrar XP:", error);
+            throw new Error("Erro ao registrar XP.");
+        }
     }
 }
 

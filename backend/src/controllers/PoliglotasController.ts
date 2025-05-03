@@ -32,7 +32,6 @@ class PoliglotasController {
     async criar(req: Request, res: Response){
         try {
             const { username } = req.body;
-            //console.log("nome", username);
 
             const usuario = await PoliglotasService.buscarPoliglota(username);
 
@@ -40,14 +39,15 @@ class PoliglotasController {
                 return res.status(404).json({ error: "Usuário não encontrado no Duolingo." });
             }
 
-            //console.log("Usuário encontrado:", usuario);
             if (!username) {
                 return res.status(400).json({ error: "O campo 'username' é obrigatório." });
             }
 
-            //const idiomasString = usuario.idiomas.join(", ");
+            // Cria o poliglota no banco
             const poliglota = await PoliglotasService.criar(username, usuario.idiomas, usuario.xp, usuario.ofensiva, usuario.ultimaAtividade);
             return res.status(201).json(poliglota);
+
+
         } catch (error) {
             console.log(error);
             return res.status(500).json({ error: "Erro ao criar ." });

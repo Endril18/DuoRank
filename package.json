@@ -1,23 +1,21 @@
 {
   "type": "module",
-
   "scripts": {
-  "dev": "tsx backend/src/server.ts",
-  "build": "tsc",
-  "start": "node dist/server.js"
+    "dev": "tsx backend/src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
-
   "dependencies": {
-    "@prisma/client": "^6.5.0",
+    "@prisma/client": "^6.7.0",
     "axios": "^1.8.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "prisma": "^6.5.0"
+    "express": "^4.21.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "prisma": "^6.7.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"

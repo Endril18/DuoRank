@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import PoliglotasRoutes from "./routes/PoliglotasRoutes";
+import ranking from "./routes/ranking";
 
 dotenv.config();
 
@@ -11,6 +12,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/poliglotas", PoliglotasRoutes);
+app.use("/poliglotas/rank", ranking);
+
 
 app.get("/", (req, res) => {
     res.send("Poliglotas está rodando!");

@@ -1,0 +1,27 @@
+/* src/pages/Rank/style.css */
+.ranking-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.rank-card {
+  background-color: #fff;
+  padding: 15px;
+  margin: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  text-align: center;
+}
+
+.rank-card h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.rank-card p {
+  font-size: 1.2rem;
+  color: green;
+}

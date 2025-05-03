@@ -16,8 +16,17 @@ model Poliglota {
   id        Int      @id @default(autoincrement())
   nome      String   @unique
   idiomas   String
-  xp        Int      @default(0)
+  xp        Int      @default(0) // total atual
   ofensiva  Int      @default(0)
   ultimaAtividade DateTime?
+  historico HistoricoXP[] // Um poliglota pode ter muitos históricos
+}
+
+model HistoricoXP {
+  id          Int       @id @default(autoincrement())
+  poliglotaId Int
+  xpAlterado  Int       // Quantidade de XP ganhos
+  data        DateTime  @default(now()) // Data do evento
+  poliglota   Poliglota @relation(fields: [poliglotaId], references: [id])
 }
 

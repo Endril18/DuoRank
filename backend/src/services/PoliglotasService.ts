@@ -166,65 +166,68 @@ class PoliglotasService{
         }
     }
 
-    async rankPorPeriodo(periodo: 'semanal' | 'mensal' | 'anual') {
+    async rankPorPeriodo(periodo: 'diario' | 'semanal' | 'mensal' | 'anual') {
         try {
-            // Define o intervalo de datas com base no período escolhido
-            let startDate: Date;
-            const endDate = new Date(); // Data atual
+          let startDate: Date;
+          const endDate = new Date(); // Data atual
 
-            if (periodo === 'semanal') {
-                startDate = new Date();
-                startDate.setDate(endDate.getDate() - 7); // 7 dias atrás
-            } else if (periodo === 'mensal') {
-                startDate = new Date();
-                startDate.setMonth(endDate.getMonth() - 1); // 1 mês atrás
-            } else if (periodo === 'anual') {
-                startDate = new Date();
-                startDate.setFullYear(endDate.getFullYear() - 1); // 1 ano atrás
-            } else {
-                throw new Error('Período inválido');
+          // Ajuste na definição do intervalo de datas
+          if (periodo === 'diario') {
+            startDate = new Date();
+            startDate.setHours(0, 0, 0, 0);  // Define o início do dia como meia-noite
+          } else if (periodo === 'semanal') {
+            startDate = new Date();
+            startDate.setDate(endDate.getDate() - 7);  // 7 dias atrás
+          } else if (periodo === 'mensal') {
+            startDate = new Date();
+            startDate.setMonth(endDate.getMonth() - 1);  // 1 mês atrás
+          } else if (periodo === 'anual') {
+            startDate = new Date();
+            startDate.setFullYear(endDate.getFullYear() - 1);  // 1 ano atrás
+            startDate.setMonth(0);  // Início do ano
+            startDate.setDate(1);  // Começo do ano
+          } else {
+            throw new Error('Período inválido');
+          }
+
+          // Consultar o histórico de XP dos poliglotas dentro do período
+          const ranking = await prisma.historicoXP.findMany({
+            where: {
+              data: {
+                gte: startDate, // Data de início do período
+                lte: endDate,   // Data final (hoje)
+              },
+            },
+            include: {
+              poliglota: true, // Inclui os dados do poliglota na consulta
+            },
+          });
+
+          // Verificar se há dados no histórico
+          if (!ranking || ranking.length === 0) {
+            return [];  // Caso não haja dados, retorna um array vazio
+          }
+
+          // Agregar os XP ganhos por poliglota
+          const rankingAgregado = ranking.reduce((acc: any, historico) => {
+            const poliglotaId = historico.poliglota.id;
+            if (!acc[poliglotaId]) {
+              acc[poliglotaId] = { poliglota: historico.poliglota, xpTotal: 0 };
             }
+            acc[poliglotaId].xpTotal += historico.xpAlterado;  // Soma o XP alterado
+            return acc;
+          }, {});
 
-            // Consulta o histórico de XP dos poliglotas dentro do período
-            const ranking = await prisma.historicoXP.findMany({
-                where: {
-                    data: {
-                        gte: startDate, // Data de início do período
-                        lte: endDate,   // Data final (hoje)
-                    },
-                },
-                orderBy: {
-                    xpAlterado: 'desc', // Ordena pelo XP alterado em ordem decrescente
-                },
-                include: {
-                    poliglota: true, // Inclui os dados do poliglota na consulta
-                },
-            });
+          // Ordenando os poliglotas pelo XP total, de forma decrescente
+          const rankingOrdenado = Object.values(rankingAgregado).sort((a: any, b: any) => b.xpTotal - a.xpTotal);
 
-            // Verificar se há dados no histórico
-            if (!ranking || ranking.length === 0) {
-                return [];  // Caso não haja dados, retorna um array vazio
-            }
-
-            // Agrupando os poliglotas pelo ID e somando os XP ganhos
-            const rankingAgregado = ranking.reduce((acc: any, historico) => {
-                const poliglotaId = historico.poliglota.id;
-                if (!acc[poliglotaId]) {
-                    acc[poliglotaId] = { poliglota: historico.poliglota, xpTotal: 0 };
-                }
-                acc[poliglotaId].xpTotal += historico.xpAlterado; // Soma o XP alterado
-                return acc;
-            }, {});
-
-            // Ordenando os poliglotas pelo XP total
-            const rankingOrdenado = Object.values(rankingAgregado).sort((a: any, b: any) => b.xpTotal - a.xpTotal);
-
-            return rankingOrdenado;  // Retorna o ranking ordenado
+          return rankingOrdenado;
         } catch (error) {
-            console.error("Erro ao gerar ranking por período:", error);
-            throw new Error("Erro ao gerar ranking");
+          console.error("Erro ao gerar ranking por período:", error);
+          throw new Error("Erro ao gerar ranking");
         }
-    }
+      }
+
 }
 
 export default new PoliglotasService();

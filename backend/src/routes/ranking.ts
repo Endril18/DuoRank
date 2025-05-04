@@ -1,46 +1,65 @@
-import readline from "readline";
-import dotenv from "dotenv";
-import PoliglotaController from "./backend/src/controllers/PoliglotasController";
-import { Request, Response } from "express";
+import { PrismaClient } from '@prisma/client';
+import express from 'express';
 
-dotenv.config();
+const prisma = new PrismaClient();
+const router = express.Router();
 
-// Configurar o readline para interagir com o usuário no terminal
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
+// Rota para obter o ranking
+router.get('/', async (req, res) => {
+  try {
+    // Definir o intervalo de datas (semanal, mensal, anual)
+    const { periodo } = req.query; // Recebe 'semanal', 'mensal', ou 'anual' através da query string ()
+
+    let startDate: Date;
+    const endDate = new Date(); // Data atual
+
+    if (periodo === 'semanal') {
+      startDate = new Date();
+      startDate.setDate(endDate.getDate() - 7); // 7 dias atrás
+    } else if (periodo === 'mensal') {
+      startDate = new Date();
+      startDate.setMonth(endDate.getMonth() - 1); // 1 mês atrás
+    } else if (periodo === 'anual') {
+      startDate = new Date();
+      startDate.setFullYear(endDate.getFullYear() - 1); // 1 ano atrás
+    } else {
+      startDate = new Date(0); // Inicia desde a data mais antiga, caso não tenha filtro
+    }
+
+    // Buscar o histórico de XP por poliglota dentro do período definido
+    const ranking = await prisma.historicoXP.findMany({
+      where: {
+        data: {
+          gte: startDate, // Data de início do período
+          lte: endDate,   // Data final (hoje)
+        },
+      },
+      include: {
+        poliglota: true, // Inclui os dados do poliglota (nome, idiomas, etc.)
+      },
+    });
+
+    // Agregar os dados por poliglota, somando o XP alterado
+    const rankingAgregado = ranking.reduce((acc: any, historico) => {
+      const poliglotaId = historico.poliglota.id;
+      if (!acc[poliglotaId]) {
+        acc[poliglotaId] = { poliglota: historico.poliglota, xpTotal: 0 };
+      }
+      acc[poliglotaId].xpTotal += historico.xpAlterado;
+      return acc;
+    }, {});
+
+    // Ordenando os poliglotas pelo XP total
+    const rankingOrdenado = Object.values(rankingAgregado).sort((a: any, b: any) => b.xpTotal - a.xpTotal);
+
+    // Retorna o ranking ordenado
+    res.json(rankingOrdenado);
+  } catch (error) {
+    console.error('Erro ao buscar ranking:', error);
+    res.status(500).json({ error: 'Erro ao buscar ranking' });
+  } finally {
+    await prisma.$disconnect();  // Fechar a conexão com o banco após a execução
+  }
 });
 
-// Criar um mock de Response (para simular a resposta do Express)
-const createMockResponse = () => {
-  const res: Partial<Response> = {
-    status: function (statusCode: number) {
-      console.log("Status:", statusCode);
-      return this;
-    },
-    json: function (data: any) {
-      console.log("Resposta JSON:", JSON.stringify(data, null, 2));
-    }
-  };
-  return res as Response;
-};
-
-// Função para testar o método `rank()`
-const testarRank = async () => {
-  rl.question('Escolha o período (semanal, mensal, anual): ', async (periodo) => {
-    try {
-      const req = { query: { periodo } } as Request; // Simulando o request com o parâmetro "periodo"
-      const res = createMockResponse(); // Simulando o response
-
-      console.log(`\n🔍 Buscando ranking para o período: ${periodo}...`);
-      await PoliglotaController.rank(req, res);  // Chama o método de ranking do controlador
-    } catch (error) {
-      console.error("Erro ao buscar ranking:", error.message);
-    } finally {
-      rl.close();
-    }
-  });
-};
-
-// Inicia o teste do método rank
-testarRank();
+export default router;

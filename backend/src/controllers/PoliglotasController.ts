@@ -91,13 +91,14 @@ class PoliglotasController {
 
     async rank(req: Request, res: Response) {
         try {
-          const { periodo } = req.query; // Obtém o período solicitado (semanal, mensal, anual)
+          const { periodo } = req.query; // Obtém o período solicitado (diario, semanal, mensal, anual)
 
-          if (!periodo || !['semanal', 'mensal', 'anual'].includes(periodo as string)) {
-            return res.status(400).json({ error: 'Período inválido. Use "semanal", "mensal" ou "anual".' });
+          // Modificar para aceitar 'diario' como válido
+          if (!periodo || !['diario', 'semanal', 'mensal', 'anual'].includes(periodo as string)) {
+            return res.status(400).json({ error: 'Período inválido. Use "diario", "semanal", "mensal" ou "anual".' });
           }
 
-          const ranking = await PoliglotasService.rankPorPeriodo(periodo as 'semanal' | 'mensal' | 'anual');
+          const ranking = await PoliglotasService.rankPorPeriodo(periodo as 'diario' | 'semanal' | 'mensal' | 'anual');
           return res.json(ranking);  // Retorna o ranking gerado pelo serviço
         } catch (error) {
           console.error("Erro ao obter ranking:", error);

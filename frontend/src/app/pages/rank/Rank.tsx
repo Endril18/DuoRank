@@ -1,9 +1,10 @@
 
-
-export const Rank = () => {
+const Rank = () => {
   return (
-    <>
-      <p>Rank</p>
-    </>
+    <div>
+      <h2>Ranking</h2>
+    </div>
   );
 };
+
+export default Rank;

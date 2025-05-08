@@ -1,7 +1,11 @@
-export const PoliglotasList = () => {
+
+
+const PoliglotaList = () => {
   return (
-    <>
-      <p>Listagem</p>
-    </>
+    <div>
+      <h2>Lista de Poliglotas</h2>
+    </div>
   );
 };
+
+export default PoliglotaList;

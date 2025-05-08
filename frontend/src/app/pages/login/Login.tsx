@@ -1,7 +1,10 @@
-export const Register = () => {
+
+const Login = () => {
   return (
-    <>
-      <p>Registrar</p>
-    </>
+    <div>
+      <h2>Login</h2>
+    </div>
   );
 };
+
+export default Login;

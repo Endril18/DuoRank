@@ -9,7 +9,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") // Pega URL do banco de dados do arquivo .env
+  url      = env("DATABASE_URL") //
 }
 
 model Poliglota {

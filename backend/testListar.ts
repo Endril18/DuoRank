@@ -1,6 +1,6 @@
 import readline from "readline";
 import dotenv from "dotenv";
-import PoliglotaController from "./backend/src/controllers/PoliglotasController";
+import PoliglotaController from "./src/controllers/PoliglotasController";
 import { Request, Response } from "express";
 
 dotenv.config();

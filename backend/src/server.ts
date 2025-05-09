@@ -20,5 +20,3 @@ const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
-
-//acessar navegador localhost ou usar curl http://localhost:3000/ no terminal

@@ -2,9 +2,9 @@
   "name": "duorank",
   "version": "1.0.0",
   "scripts": {
-    "start": "npm run start --prefix backend",
+    "start": "node dist/server.js --prefix backend",
     "dev": "npm run dev --prefix backend",
-    "build": "npm run build --prefix backend"
+    "build": "tsc --prefix backend"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

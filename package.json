@@ -1,0 +1,9 @@
+{
+  "name": "duorank",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "npm run start --prefix backend",
+    "dev": "npm run dev --prefix backend",
+    "build": "npm run build --prefix backend"
+  }
+}

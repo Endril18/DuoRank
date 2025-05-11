@@ -5,5 +5,8 @@
     "start": "npm run start --prefix backend",
     "dev": "npm run dev --prefix backend",
     "build": "npm run build --prefix backend"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
   }
 }

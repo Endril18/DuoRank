@@ -11,7 +11,7 @@ class PoliglotasService{
 
     async buscarPoliglota(username: string): Promise<DadosDuolingo>{
         try {
-            const url = `${process.env.URL_API}${username}`; // usar .env
+            const url = `${process.env.DUO_ENDPOINT_URL}${username}`; // usar .env
             const response = await axios.get( url, {
                 headers: {
                     'Accept': 'application/json',

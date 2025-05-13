@@ -21,7 +21,7 @@ class PoliglotasService {
     buscarPoliglota(username) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const url = `${process.env.BASE_ENDPOINT_URL}${username}`; // usar .env
+                const url = `${process.env.DUO_ENDPOINT_URL}${username}`; // usar .env
                 const response = yield axios_1.default.get(url, {
                     headers: {
                         'Accept': 'application/json',

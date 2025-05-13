@@ -10,7 +10,7 @@
     "rootDir": "./"
   },
   "include": [
-    "*.ts"  // Ou se preferir, algo como "src/**/*.ts", se estiver em um diretório src
+    "*.ts"
   ],
   "exclude": [
     "node_modules", "dist"

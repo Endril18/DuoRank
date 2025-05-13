@@ -1,4 +1,4 @@
-import {PrismaClient, Poliglota } from "@prisma/client"; //importar o client do prisma que vai lidar com o banco de dados
+import { PrismaClient } from "@prisma/client"; //importar o client do prisma que vai lidar com o banco de dados
 import { DadosDuolingo } from "../types/poliglota";
 import axios from  "axios";
 import dotenv from 'dotenv';
@@ -85,7 +85,7 @@ class PoliglotasService{
         };
     }
 
-    async criar(nome: string, idiomas: string, xp?: number, ofensiva?: number, ultimaAtividade?: Date | null): Promise<Poliglota> {
+    async criar(nome: string, idiomas: string, xp?: number, ofensiva?: number, ultimaAtividade?: Date | null) {
             try {
                 console.log("Criando poliglota com:", { nome, idiomas, xp, ofensiva, ultimaAtividade });
 
@@ -109,7 +109,7 @@ class PoliglotasService{
             }
     }
 
-    async listar(): Promise<Poliglota[]> {
+    async listar() {
         return await prisma.poliglota.findMany();
     }
 

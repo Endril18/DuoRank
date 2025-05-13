@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Poliglota } from '../../types/poliglota';
 import { calcularStatusOfensiva } from '../../shared/utils';
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const Dashboard = () => {
   const [poliglotas, setPoliglotas] = useState<Poliglota[]>([]);
 
   useEffect(() => {
     // Buscar os poliglotas do backend
-    axios.get('http://localhost:12110/poliglotas') // endpoint para listar poliglotas
+    const url = `${process.env.BASE_ENDPOINT_URL_BACKEND}`;
+    axios.get(url) // endpoint para listar poliglotas
       .then(response => {
         setPoliglotas(response.data);
       })

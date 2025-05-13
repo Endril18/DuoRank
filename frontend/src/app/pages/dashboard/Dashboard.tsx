@@ -11,7 +11,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Buscar os poliglotas do backend
-    const url = `${process.env.BASE_ENDPOINT_URL_BACKEND}`;
+    const url = `${process.env.URL_API}`;
     axios.get(url) // endpoint para listar poliglotas
       .then(response => {
         setPoliglotas(response.data);

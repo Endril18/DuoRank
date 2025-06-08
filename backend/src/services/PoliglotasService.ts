@@ -29,6 +29,12 @@ class PoliglotasService {
         }
     }
 
+    async buscarPoliglotaNoBanco(username: string) {
+        return await this.prisma.poliglota.findUnique({
+            where: { nome: username },
+        });
+    }
+
 
     // Atualizar dados de todos os usuários cadastrados
     async atualizarTodosPoliglotas() {
@@ -93,7 +99,6 @@ class PoliglotasService {
     }
 
     async editar(id: number, nome: string, idiomas: string, xp?: number, ofensiva?: number, ultimaAtividade?: Date) {
-        // Pegar o xp atual
         const poliglotaAntigo = await this.prisma.poliglota.findUnique({
             where: { id },
         })
@@ -118,17 +123,6 @@ class PoliglotasService {
     async remover(id: number) {
         return await this.prisma.poliglota.delete({where: {id} });
     }
-
-    async obterPorId(id: number) {
-    const poliglota = await this.prisma.poliglota.findUnique({
-      where: { id }
-    });
-
-    if (!poliglota) {
-      throw new Error("Poliglota não encontrado");
-    }
-    return poliglota;
-  }
 
     async desconectar() {
         await this.prisma.$disconnect();

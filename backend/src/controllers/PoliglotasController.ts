@@ -22,23 +22,37 @@ class PoliglotasController {
             const dados = await this.service.buscarPoliglota(req.params.username);
             res.json({ success: true, data: dados });
         } catch (error) {
-            res.status(404).json({ success: false, message: error.message });
+            res.status(404).json({
+                success: false,
+                message: "Usuário não encontrado no Duolingo"
+            });
         }
     }
 
-    async buscar(req: Request, res: Response): Promise<Response> {
+    async buscar(req: Request, res: Response){
         try {
-            const { username } = req.params; // Obtém o username da URL
+            const { username } = req.params;
             if (!username) {
-                return res.status(400).json({ message: "O parâmetro 'username' é obrigatório." });
+                return res.status(400).json({
+                    message: "O parâmetro 'username' é obrigatório."
+                });
             }
 
-            const userData = await this.service.buscarPoliglota(username);
-            return res.json(userData); // Retorna os dados do usuário
+            const poliglota = await this.service.buscarPoliglotaNoBanco(username);
+
+            if (!poliglota) {
+                return res.status(404).json({
+                    message: "Esse Poliglota não está cadastrado."
+                });
+            }
+
+            return res.json(poliglota);
 
         } catch (error) {
-            console.error("Erro ao buscar usuário:", error);
-            return res.status(500).json({ message: "Erro ao buscar usuário", error: error.message });
+            console.error("Erro ao buscar:", error);
+            return res.status(500).json({
+                message: "Erro interno ao buscar Poliglota"
+            });
         }
     }
 

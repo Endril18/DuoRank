@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import Poliglotas from "./routes/Poliglotas";
+import Poliglotas from "./routes/PoliglotasRoutes";
 
 dotenv.config();
 

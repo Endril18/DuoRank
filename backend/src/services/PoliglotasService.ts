@@ -1,15 +1,8 @@
 import { PrismaClient } from "@prisma/client"; //importar o client do prisma que vai lidar com o banco de dados
-import { DadosDuolingo } from "../types/poliglota";
+import { DadosDuolingo } from "../types/poliglota"; // Importar o tipo de dados do Duolingo
+import { PoliglotaCreateParams } from "../types/poliglotaparametros";
 import axios from  "axios";
 import dotenv from 'dotenv';
-
-interface PoliglotaCreateParams {
-    nome: string;
-    idiomas: string;
-    xp?: number;
-    ofensiva?: number;
-    ultimaAtividade?: Date | null;
-}
 
 // Configuração do dotenv para carregar variáveis de ambiente
 dotenv.config();
@@ -84,18 +77,14 @@ class PoliglotasService {
         };
     }
 
-    async criar(nome: string, idiomas: string, xp?: number, ofensiva?: number, ultimaAtividade?: Date | null) {
+    async criar(dados: PoliglotaCreateParams) {
             try {
-                return await this.prisma.poliglota.create({
-                    data: { nome, idiomas, xp, ofensiva, ultimaAtividade }
-                });
-                // Log para depuração
-                console.log("Criando poliglota com:", { nome, idiomas, xp, ofensiva, ultimaAtividade });
+                return await this.prisma.poliglota.create({ data: dados }); // data: dados = aceita objeto
             } catch (error: any) {
                 if (error.code === 'P2002') {
                     throw new Error("Usuário já existe!");
                 }
-                throw error;
+                throw new Error("Erro ao criar poliglota: ${error.message}");
             }
     }
 
@@ -129,6 +118,17 @@ class PoliglotasService {
     async remover(id: number) {
         return await this.prisma.poliglota.delete({where: {id} });
     }
+
+    async obterPorId(id: number) {
+    const poliglota = await this.prisma.poliglota.findUnique({
+      where: { id }
+    });
+
+    if (!poliglota) {
+      throw new Error("Poliglota não encontrado");
+    }
+    return poliglota;
+  }
 
     async desconectar() {
         await this.prisma.$disconnect();

@@ -1,11 +1,15 @@
 import { Request, Response } from "express";
 import PoliglotasService from "../services/PoliglotasService";
-
 class PoliglotasController {
+    private service: PoliglotasService;
+
+    constructor() {
+        this.service = new PoliglotasService(); // Inicializa o serviço
+    }
 
     async atualizarTodos(req: Request, res: Response){
         try {
-            await PoliglotasService.atualizarTodosPoliglotas();
+            await this.service.atualizarTodosPoliglotas();
             return res.status(200).json({ mensagem: "Informações dos Poliglotas atualizadas com sucesso!"})
         } catch (error) {
             console.error("Erro no controller ao atualizar:", error);
@@ -13,9 +17,9 @@ class PoliglotasController {
         }
     }
 
-    static async buscarNoDuolingo(req: Request, res: Response) {
+    async buscarNoDuolingo(req: Request, res: Response) {
         try {
-            const dados = await PoliglotasService.buscarPoliglota(req.params.username);
+            const dados = await this.service.buscarPoliglota(req.params.username);
             res.json({ success: true, data: dados });
         } catch (error) {
             res.status(404).json({ success: false, message: error.message });
@@ -29,7 +33,7 @@ class PoliglotasController {
                 return res.status(400).json({ message: "O parâmetro 'username' é obrigatório." });
             }
 
-            const userData = await PoliglotasService.buscarPoliglota(username);
+            const userData = await this.service.buscarPoliglota(username);
             return res.json(userData); // Retorna os dados do usuário
 
         } catch (error) {
@@ -46,14 +50,20 @@ class PoliglotasController {
                 return res.status(400).json({ error: "O campo 'username' é obrigatório." });
             }
 
-            const usuario = await PoliglotasService.buscarPoliglota(username);
+            const usuario = await this.service.buscarPoliglota(username);
 
             if (!usuario) {
                 return res.status(404).json({ error: "Usuário não encontrado no Duolingo." });
             }
 
-            // Cria o poliglota no banco
-            const poliglota = await PoliglotasService.criar(username, usuario.idiomas, usuario.xp, usuario.ofensiva, usuario.ultimaAtividade);
+            // Cria o poliglota no banco:
+            const poliglota = await this.service.criar({
+                nome: username,
+                idiomas: usuario.idiomas,
+                xp: usuario.xp,
+                ofensiva: usuario.ofensiva,
+                ultimaAtividade: usuario.ultimaAtividade
+            });
             return res.status(201).json(poliglota);
 
 
@@ -63,12 +73,14 @@ class PoliglotasController {
         }
     }
 
-    static async listarPoliglotas(req: Request, res: Response) {
+    async listar(req: Request, res: Response) {
         try {
-            const poliglotas = await PoliglotasService.listar();
-            res.json({ success: true, data: poliglotas });
+            const poliglotas = await this.service.listar();
+            res.json(poliglotas);
         } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
+            res.status(500).json({ error: error.message });
+        } finally {
+            await this.service.desconectar(); // Limpeza
         }
     }
 
@@ -77,7 +89,7 @@ class PoliglotasController {
             const id = Number(req.params.id);
             const { nome, idiomas, xp, ofensiva, ultimaAtividade } = req.body;
 
-            const poliglota = await PoliglotasService.editar(id, nome, idiomas, xp, ofensiva, ultimaAtividade);
+            const poliglota = await this.service.editar(id, nome, idiomas, xp, ofensiva, ultimaAtividade);
             return res.json(poliglota);
         } catch (error) {
             console.log(error);
@@ -88,7 +100,7 @@ class PoliglotasController {
     async remover(req: Request, res: Response) {
         try {
             const id = Number(req.params.id);
-            await PoliglotasService.remover(id);
+            await this.service.remover(id);
             return res.status(204).send();
         } catch (error) {
             console.log(error);
@@ -98,4 +110,4 @@ class PoliglotasController {
 }
 
 
-export default new PoliglotasController();
+export default PoliglotasController;

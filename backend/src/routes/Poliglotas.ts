@@ -2,6 +2,9 @@ import { Router } from "express";
 import PoliglotasController from "../controllers/PoliglotasController";
 
 const router = Router();
+const controller = new PoliglotasController();
+
+router.put("/atualizar-todos", async (req, res) => { await controller.atualizarTodos(req, res); });
 
 // Middleware para tratamento assíncrono (melhor implementação)
 const asyncHandler = (fn: Function) =>

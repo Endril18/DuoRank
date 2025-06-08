@@ -13,6 +13,15 @@ class PoliglotasController {
         }
     }
 
+    static async buscarNoDuolingo(req: Request, res: Response) {
+        try {
+            const dados = await PoliglotasService.buscarPoliglota(req.params.username);
+            res.json({ success: true, data: dados });
+        } catch (error) {
+            res.status(404).json({ success: false, message: error.message });
+        }
+    }
+
     async buscar(req: Request, res: Response): Promise<Response> {
         try {
             const { username } = req.params; // Obtém o username da URL
@@ -54,14 +63,12 @@ class PoliglotasController {
         }
     }
 
-    async listar(req: Request, res: Response) {
+    static async listarPoliglotas(req: Request, res: Response) {
         try {
-            const { id } = req.query;
-            const poliglota = await PoliglotasService.listar();
-            return res.json(poliglota);
+            const poliglotas = await PoliglotasService.listar();
+            res.json({ success: true, data: poliglotas });
         } catch (error) {
-            console.log(error);
-            return res.status(500).json({ error: "Erro ao listar poliglotas." });
+            res.status(500).json({ success: false, message: error.message });
         }
     }
 
@@ -88,23 +95,6 @@ class PoliglotasController {
             return res.status(500).json({ error: "Erro ao remover." });
         }
     }
-
-    async rank(req: Request, res: Response) {
-        try {
-          const { periodo } = req.query; // Obtém o período solicitado (diario, semanal, mensal, anual)
-
-          // Modificar para aceitar 'diario' como válido
-          if (!periodo || !['diario', 'semanal', 'mensal', 'anual'].includes(periodo as string)) {
-            return res.status(400).json({ error: 'Período inválido. Use "diario", "semanal", "mensal" ou "anual".' });
-          }
-
-          const ranking = await PoliglotasService.rankPorPeriodo(periodo as 'diario' | 'semanal' | 'mensal' | 'anual');
-          return res.json(ranking);  // Retorna o ranking gerado pelo serviço
-        } catch (error) {
-          console.error("Erro ao obter ranking:", error);
-          return res.status(500).json({ error: "Erro ao gerar ranking." });
-        }
-      }
 }
 
 

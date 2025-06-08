@@ -1,21 +1,25 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { Router } from "express";
 import PoliglotasController from "../controllers/PoliglotasController";
 
+const router = Router();
 
-// Middleware para tratar funções assíncronas corretamente
+// Middleware para tratamento assíncrono (melhor implementação)
 const asyncHandler = (fn: Function) =>
-    (req: Request, res: Response, next: NextFunction) => {
-        return Promise.resolve(fn(req, res, next)).catch(next);
-    };
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await fn(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  };
 
-const routes = Router();
+// Rotas da API
+router.get("/", asyncHandler(PoliglotasController.listarPoliglotas));
+router.post("/", asyncHandler(PoliglotasController.criarPoliglota));
+router.get("/buscar/:username", asyncHandler(PoliglotasController.buscarNoDuolingo));
+router.get("/:id", asyncHandler(PoliglotasController.obterPoliglota));
+router.put("/:id", asyncHandler(PoliglotasController.atualizarPoliglota));
+router.delete("/:id", asyncHandler(PoliglotasController.removerPoliglota));
+router.post("/atualizar-todos", asyncHandler(PoliglotasController.atualizarTodosPoliglotas));
 
-// 🔹 Agora a rota recebe `username` como parâmetro corretamente
-routes.get("/:username", asyncHandler((req, res) => PoliglotasController.buscar(req, res)));
-routes.put("/:id", asyncHandler((req, res) => PoliglotasController.editar(req, res)));
-routes.delete("/:id", asyncHandler((req, res) => PoliglotasController.remover(req, res)));
-routes.get("/", asyncHandler((req, res) => PoliglotasController.listar(req, res)));
-routes.put("/atualizar-todos", asyncHandler((req, res) => PoliglotasController.atualizarTodos(req, res)));
-
-
-export default routes;
+export default router;

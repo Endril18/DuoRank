@@ -2,21 +2,24 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Poliglota } from '../../types/poliglota';
 import { calcularStatusOfensiva } from '../../shared/utils';
-import dotenv from "dotenv";
 
-dotenv.config();
 
 const Dashboard = () => {
   const [poliglotas, setPoliglotas] = useState<Poliglota[]>([]);
 
   useEffect(() => {
-    // Buscar os poliglotas do backend
-    const url = `${import.meta.env.VITE_URL_API}`; // endpoint para listar poliglotas
-    axios.get(url) // endpoint para listar poliglotas
-      .then(response => {
+    const fetchPoliglotas = async () => {
+      try {
+        // Correção: usar import.meta.env.VITE_API_BACKEND
+        const url = `${import.meta.env.VITE_API_BACKEND}poliglotas`;
+        const response = await axios.get(url);
         setPoliglotas(response.data);
-      })
-      .catch(error => console.error('Erro ao buscar poliglotas', error));
+      } catch (error) {
+        console.error('Erro ao buscar poliglotas', error);
+      }
+    };
+
+    fetchPoliglotas();
   }, []);
 
   return (

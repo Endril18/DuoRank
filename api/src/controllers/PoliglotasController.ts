@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import PoliglotasService from "../services/PoliglotasService";
 class PoliglotasController {
     private service: PoliglotasService;
@@ -7,7 +7,7 @@ class PoliglotasController {
         this.service = new PoliglotasService(); // Inicializa o serviço
     }
 
-    async atualizarTodos(req: Request, res: Response){
+    async atualizarTodos(req: Request, res: Response, next: NextFunction){
         try {
             await this.service.atualizarTodosPoliglotas();
             return res.status(200).json({ mensagem: "Informações dos Poliglotas atualizadas com sucesso!"})
@@ -17,19 +17,17 @@ class PoliglotasController {
         }
     }
 
-    async buscarNoDuolingo(req: Request, res: Response) {
+    async buscarNoDuolingo(req: Request, res: Response, next: NextFunction) {
         try {
             const dados = await this.service.buscarPoliglota(req.params.username);
             res.json({ success: true, data: dados });
         } catch (error) {
-            res.status(404).json({
-                success: false,
-                message: "Usuário não encontrado no Duolingo"
-            });
+            console.error(`Erro ao buscar ${req.params.username} no Duolingo:`, error);
+            next(error); // Encaminha para o middleware de erro
         }
     }
 
-    async buscar(req: Request, res: Response){
+    async buscar(req: Request, res: Response, next: NextFunction){
         try {
             const { username } = req.params;
             if (!username) {
@@ -56,7 +54,7 @@ class PoliglotasController {
         }
     }
 
-    async criar(req: Request, res: Response){
+    async criar(req: Request, res: Response, next: NextFunction){
         try {
             const { username } = req.body;
 
@@ -87,7 +85,7 @@ class PoliglotasController {
         }
     }
 
-    async listar(req: Request, res: Response) {
+    async listar(req: Request, res: Response, next: NextFunction) {
         try {
             const poliglotas = await this.service.listar();
             res.json(poliglotas);
@@ -98,7 +96,7 @@ class PoliglotasController {
         }
     }
 
-    async editar(req: Request, res: Response) {
+    async editar(req: Request, res: Response, next: NextFunction) {
         try {
             const id = Number(req.params.id);
             const { nome, idiomas, xp, ofensiva, ultimaAtividade } = req.body;
@@ -111,7 +109,7 @@ class PoliglotasController {
         }
     }
 
-    async remover(req: Request, res: Response) {
+    async remover(req: Request, res: Response, next: NextFunction) {
         try {
             const id = Number(req.params.id);
             await this.service.remover(id);

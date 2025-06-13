@@ -2,7 +2,7 @@ import express from "express";
 import { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import Poliglotas from "./routes/PoliglotasRoutes";
+import PoliglotasRoutes from "./routes/PoliglotasRoutes";
 
 dotenv.config();
 
@@ -14,7 +14,7 @@ app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json()); // Corrigido o erro de digitação
 
 // Rotas
-app.use("/api/poliglotas", Poliglotas);
+app.use("/api/poliglotas", PoliglotasRoutes);
 
 // Rota de health check
 app.get("/api", (req, res) => {

@@ -1,52 +1,47 @@
-version: '3.8'
-
 services:
-  # Backend (API)
   backend:
-    build: ./api  # Caminho para a pasta do backend
+    container_name: duorank_api_container
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    env_file:
+      - api/.env
     ports:
-      - "12110:12110"  # Porta da API
-    environment:
-      - DATABASE_URL=postgres://duorank:senha@db:5432/duorank
-    depends_on:
-      - db
-    volumes:
-      - ./backend:/app  # Para desenvolvimento com hot-reload
-      - /app/node_modules
+      - "12110:12110"
 
-  # Frontend (React/Vue/etc)
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"  # Porta do front
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    depends_on:
-      - backend  # Espera o backend ficar disponível
+  # # Frontend (React/Vue/etc)
+  # frontend:
+  #   build: ./frontend
+  #   ports:
+  #     - "3000:3000"  # Porta do front
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   depends_on:
+  #     - backend  # Espera o backend ficar disponível
 
-  # Banco de dados PostgreSQL
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: duorank
-      POSTGRES_PASSWORD: senha
-      POSTGRES_DB: duorank
-    volumes:
-      - postgres_data:/var/lib/postgresql/data  # Dados persistentes
-    ports:
-      - "5432:5432"  # Expor apenas se necessário para acesso externo
+  # # Banco de dados PostgreSQL
+  # db:
+  #   image: postgres:15
+  #   environment:
+  #     POSTGRES_USER: duorank
+  #     POSTGRES_PASSWORD: senha
+  #     POSTGRES_DB: duorank
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data  # Dados persistentes
+  #   ports:
+  #     - "5432:5432"  # Expor apenas se necessário para acesso externo
 
-  # Opcional: PGAdmin (Interface visual para o banco)
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@duorank.com
-      PGADMIN_DEFAULT_PASSWORD: admin123
-    ports:
-      - "5050:80"
-    depends_on:
-      - db
+  # # Opcional: PGAdmin (Interface visual para o banco)
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@duorank.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin123
+  #   ports:
+  #     - "5050:80"
+  #   depends_on:
+  #     - db
 
-volumes:
-  postgres_data:  # Volume persistente para o banco
+# volumes:
+#   postgres_data:  # Volume persistente para o banco

@@ -1,18 +1,19 @@
-FROM node:latest
+FROM node:18
 
 WORKDIR /api
 
-COPY . .
+# Copia apenas o necessário para instalar dependências
+COPY package.json package-lock.json ./
+COPY prisma ./prisma/
 
-RUN rm -rf node_modules
+# Instala as dependências
 RUN npm install
 
-# 4. Compila o TypeScript (gera os arquivos em /dist)
-RUN npm run build
+# Copia o restante do código
+COPY . .
 
-# Gera o Prisma Client
-RUN npx prisma generate --schema=src/prisma/schema.prisma
+# Faz o build (ts) e gera o Prisma Client
+RUN npm run build && npx prisma generate
 
-CMD ["npm", "start"]
-
-EXPOSE 12110
+# Script do package.json para iniciar
+CMD ["node", "dist/server.js"]

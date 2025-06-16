@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import PoliglotasService from "../services/PoliglotasService";
+import PoliglotasService from "../services/PoliglotasService.js";
 class PoliglotasController {
     private service: PoliglotasService;
 

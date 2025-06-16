@@ -2,7 +2,7 @@ import express from "express";
 import { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import PoliglotasRoutes from "./routes/PoliglotasRoutes";
+import PoliglotasRoutes from "./routes/PoliglotasRoutes.js";
 
 dotenv.config();
 

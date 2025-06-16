@@ -4,6 +4,7 @@ WORKDIR /api
 
 # Copia apenas o necessário para instalar dependências
 COPY package.json package-lock.json ./
+COPY tsconfig.json ./
 COPY prisma ./prisma/
 
 # Instala as dependências

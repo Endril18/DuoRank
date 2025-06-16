@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
-import PoliglotasController from "../controllers/PoliglotasController";
+import PoliglotasController from "../controllers/PoliglotasController.js";
 
 const router = Router();
 const controller = new PoliglotasController();

@@ -1,20 +1,39 @@
-FROM node:18
+# FROM node:18
+
+# WORKDIR /api
+
+# # Copia apenas o necessário para instalar dependências
+# COPY package.json package-lock.json ./
+# COPY tsconfig.json ./
+# COPY prisma ./prisma/
+
+# # Instala as dependências
+# RUN npm install
+
+# # Copia o restante do código
+# COPY . .
+
+# # Faz o build (ts) e gera o Prisma Client
+# RUN npm run build && npx prisma generate
+
+# # Script do package.json para iniciar
+# CMD ["node", "dist/server.js"]
+
+FROM node:18-alpine
 
 WORKDIR /api
 
-# Copia apenas o necessário para instalar dependências
+# Instala dependências de build (incluindo Prisma)
+RUN apk add --no-cache python3 make g++
+
+# Cache de dependências
 COPY package.json package-lock.json ./
-COPY tsconfig.json ./
-COPY prisma ./prisma/
+RUN npm install --production
 
-# Instala as dependências
-RUN npm install
-
-# Copia o restante do código
+# Copia o código
 COPY . .
 
-# Faz o build (ts) e gera o Prisma Client
+# Build e Prisma
 RUN npm run build && npx prisma generate
 
-# Script do package.json para iniciar
 CMD ["node", "dist/server.js"]

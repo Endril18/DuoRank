@@ -1,30 +1,25 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Poliglota } from '../../types/poliglota';
-import { calcularStatusOfensiva } from '../../shared/utils';
+import { Poliglota } from '../types/poliglota';
+import { calcularStatusOfensiva } from '../shared/utils';
 
 
-const Dashboard = () => {
+const PoliglotaList = () => {
   const [poliglotas, setPoliglotas] = useState<Poliglota[]>([]);
 
   useEffect(() => {
-    const fetchPoliglotas = async () => {
-      try {
-        // Correção: usar import.meta.env.VITE_API_BACKEND
-        const url = `${import.meta.env.VITE_API_BACKEND}poliglotas`;
-        const response = await axios.get(url);
+    // Buscar os poliglotas do backend
+    const url = `${import.meta.env.API_BACKEND+"poliglotas"}`; // endpoint para listar poliglotas
+    axios.get(url)
+      .then(response => {
         setPoliglotas(response.data);
-      } catch (error) {
-        console.error('Erro ao buscar poliglotas', error);
-      }
-    };
-
-    fetchPoliglotas();
+      })
+      .catch(error => console.error('Erro ao listar os poliglotas', error));
   }, []);
 
-  return (
+    return (
     <div>
-      <h2>Poliglotas - Ofensiva</h2>
+      <h2>Poliglotas</h2>
       <table>
         <thead>
           <tr>
@@ -54,4 +49,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default PoliglotaList;

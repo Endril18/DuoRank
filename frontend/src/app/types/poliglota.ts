@@ -1,5 +1,3 @@
-import { HistoricoXP } from './historicoXP';
-
 export interface Poliglota {
   id: number;
   nome: string;
@@ -7,5 +5,4 @@ export interface Poliglota {
   xp: number;
   ofensiva: number;
   ultimaAtividade: Date | null; // Pode ser null ou uma string, ou até um tipo Date, dependendo da estrutura que você recebe da API
-  historico: HistoricoXP[]; // Um poliglota pode ter muitos históricos
 }

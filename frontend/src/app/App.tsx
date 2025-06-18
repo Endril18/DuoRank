@@ -1,4 +1,3 @@
-//import React from 'react';
 import { AppRoutes } from './routes'; // Importando as rotas
 
 function App() {

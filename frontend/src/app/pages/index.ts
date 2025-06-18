@@ -1,4 +1,3 @@
-export { default as Dashboard } from './dashboard/Dashboard';
-export { default as Login } from './login/Login';
-export { default as PoliglotasList } from './poliglotasList/PoliglotasList';
-export { default as Rank } from './rank/Rank';
+export { default as Dashboard } from './Dashboard';
+export { default as Login } from './Login';
+export { default as PoliglotasList } from './PoliglotasList';

@@ -1,5 +1,7 @@
 .env
 
+docker-compose.yml
+
 # Logs
 logs
 *.log

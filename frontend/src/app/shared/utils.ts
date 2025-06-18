@@ -10,5 +10,9 @@ export const calcularStatusOfensiva = (ultimaAtividade: Date | null): string => 
     return "Já fez 🔥"; // A ofensiva está ativa hoje
   }
 
+  if (diasDiferenca === 1) {
+    return "Fez ontem"; // A ofensiva parou ontem
+  }
+
   return `Há ${diasDiferenca} dia(s)`; // A ofensiva está parada há X dias
 };

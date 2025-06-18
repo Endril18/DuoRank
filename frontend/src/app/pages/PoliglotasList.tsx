@@ -9,7 +9,7 @@ const PoliglotaList = () => {
 
   useEffect(() => {
     // Buscar os poliglotas do backend
-    const url = `${import.meta.env.API_BACKEND+"poliglotas"}`; // endpoint para listar poliglotas
+    const url = `${import.meta.env.VITE_API_BACKEND}poliglotas`; // endpoint para listar poliglotas
     axios.get(url)
       .then(response => {
         setPoliglotas(response.data);

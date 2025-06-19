@@ -2,49 +2,55 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Poliglota } from '../types/poliglota';
 import { calcularStatusOfensiva } from '../shared/utils';
-
+import { Card, Dropdown } from 'flowbite-react';
+import './style/PoliglotasList.css';
 
 const PoliglotaList = () => {
   const [poliglotas, setPoliglotas] = useState<Poliglota[]>([]);
 
   useEffect(() => {
-    // Buscar os poliglotas do backend
-    const url = `${import.meta.env.VITE_API_BACKEND}poliglotas`; // endpoint para listar poliglotas
+    const url = `${import.meta.env.VITE_API_BACKEND}poliglotas`;
     axios.get(url)
-      .then(response => {
-        setPoliglotas(response.data);
-      })
+      .then(response => setPoliglotas(response.data))
       .catch(error => console.error('Erro ao listar os poliglotas', error));
   }, []);
 
-    return (
-    <div>
-      <h2>Poliglotas</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>XP</th>
-            <th>Ofensiva</th>
-            <th>Lição</th>
-          </tr>
-        </thead>
-        <tbody>
-          {poliglotas.map((poliglota) => {
-            const statusOfensiva = calcularStatusOfensiva(poliglota.ultimaAtividade);
-            return (
-              <tr key={poliglota.id}>
-                <td>{poliglota.id}</td>
-                <td>{poliglota.nome}</td>
-                <td>{poliglota.xp}</td>
-                <td>{poliglota.ofensiva}</td>
-                <td>{statusOfensiva}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+  return (
+    <div className="poliglota-grid">
+      {poliglotas.map((poliglota) => {
+        const statusOfensiva = calcularStatusOfensiva(poliglota.ultimaAtividade);
+
+        return (
+          <Card key={poliglota.id} className="poliglota-card">
+            <div className="poliglota-dropdown">
+              <Dropdown inline label="">
+                <Dropdown.item>
+                  <button className="dropdown-item">Editar</button>
+                </Dropdown.item>
+                <Dropdown.item>
+                  <button className="dropdown-item">Exportar Dados</button>
+                </Dropdown.item>
+                <Dropdown.item>
+                  <button className="dropdown-item">Deletar</button>
+                </Dropdown.item>
+              </Dropdown>
+            </div>
+            <img
+              alt={`Foto do usuário ${poliglota.nome}`}
+              src="/images/${poliglota.nome}.png"
+              className="poliglota-avatar"
+            />
+            <h5 className="poliglota-nome">{poliglota.nome}</h5>
+            <span className="poliglota-info">XP: {poliglota.xp}</span>
+            <span className="poliglota-info">Ofensiva: {poliglota.ofensiva} 🔥</span>
+            <span className="poliglota-info">Lição: {statusOfensiva}</span>
+            <div className="poliglota-botoes">
+              <a href="#" className="botao-ver">Ver Perfil</a>
+              <a href="#" className="botao-mensagem">Mensagem</a>
+            </div>
+          </Card>
+        );
+      })}
     </div>
   );
 };

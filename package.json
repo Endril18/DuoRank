@@ -9,8 +9,12 @@
     "@prisma/client": "^6.7.0",
     "axios": "^1.8.3",
     "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "flowbite": "^3.1.2",
+    "flowbite-react": "^0.4.11",
+    "tailwindcss": "^3.2.7"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

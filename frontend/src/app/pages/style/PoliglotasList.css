@@ -1,0 +1,90 @@
+/* Container de grade que organiza os cards dos poliglotas */
+.poliglota-grid {
+  display: grid; /* Usa grid layout */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Cria colunas flexíveis com no mínimo 280px */
+  gap: 1.5rem; /* Espaço entre os cards */
+  padding: 1rem; /* Espaçamento interno geral */
+}
+
+/* Estilo do card individual do poliglota */
+.poliglota-card {
+  max-width: 20rem; /* Largura máxima do card */
+  border-radius: 0.75rem; /* Cantos arredondados */
+  background-color: #fff; /* Fundo branco */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05); /* Sombra leve */
+  padding: 1rem; /* Espaço interno */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Alinha conteúdo no centro */
+  position: relative; /* Necessário para posicionar o dropdown */
+}
+
+/* Posicionamento do botão de opções (dropdown) no topo direito */
+.poliglota-dropdown {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+
+/* Imagem de perfil do poliglota */
+.poliglota-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%; /* Torna a imagem circular */
+  object-fit: cover; /* Mantém proporção da imagem */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+  margin-bottom: 0.75rem;
+}
+
+/* Nome do poliglota */
+.poliglota-nome {
+  font-size: 1.25rem; /* Tamanho do texto */
+  font-weight: 600; /* Negrito */
+  color: #111827; /* Cor escura (quase preta) */
+  margin-bottom: 0.25rem;
+}
+
+/* Informações secundárias: XP, ofensiva, lição */
+.poliglota-info {
+  font-size: 0.875rem; /* Tamanho um pouco menor */
+  color: #6b7280; /* Cinza médio */
+  margin-bottom: 0.25rem;
+}
+
+/* Container dos botões do card */
+.poliglota-botoes {
+  display: flex; /* Coloca os botões lado a lado */
+  gap: 0.75rem; /* Espaço entre eles */
+  margin-top: 1rem;
+}
+
+/* Estilo base para os botões */
+.poliglota-botoes a {
+  padding: 0.5rem 1rem; /* Espaçamento interno */
+  font-size: 0.875rem; /* Texto pequeno */
+  border-radius: 0.5rem; /* Cantos arredondados */
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.3s; /* Suaviza o hover */
+}
+
+/* Botão azul de "Ver Perfil" */
+.botao-ver {
+  background-color: #0e7490; /* Azul ciano */
+  color: white;
+}
+
+.botao-ver:hover {
+  background-color: #0c677e; /* Azul mais escuro no hover */
+}
+
+/* Botão de mensagem com fundo branco e borda cinza */
+.botao-mensagem {
+  border: 1px solid #d1d5db; /* Borda cinza clara */
+  background-color: white;
+  color: #111827;
+}
+
+.botao-mensagem:hover {
+  background-color: #f3f4f6; /* Fundo cinza claro no hover */
+}

@@ -1,53 +1,9 @@
 services:
   backend:
     image: duorank-backend:latest
-    depends_on:
-      db:
-        condition: service_healthy
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: postgresql://${PG_USER:-postgres}:${PG_PASSWORD:-postegre}@db:5432/${PG_DATABASE:-DuoRank}?schema=public
+      DATABASE_URL: ${DATABASE_URL}
     ports:
       - "12110:12110"
-
-
-  # Banco de dados PostgreSQL
-  db:
-    image: postgres:15
-    container_name: duorank_db_container
-    environment:
-      POSTGRES_USER: ${PG_USER:-postgres}
-      POSTGRES_PASSWORD: ${PG_PASSWORD:-postegre}
-      POSTGRES_DB: ${PG_DATABASE:-DuoRank}
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-postgres}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  # # Frontend (React/Vue/etc)
-  # frontend:
-  #   build: ./frontend
-  #   ports:
-  #     - "3000:3000"  # Porta do front
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules
-  #   depends_on:
-  #     - backend  # Espera o backend ficar disponível
-
-# secrets:
-#   db_user:
-#     external: true
-#   db_password:
-#     external: true
-#   db_name:
-#     external: true
-
-volumes:
-  pg_data:
-
-# networks:
-#   backend:
-#     driver: overlay

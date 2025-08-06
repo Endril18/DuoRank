@@ -21,7 +21,7 @@
 
 FROM node:18-alpine
 
-WORKDIR /api
+WORKDIR /back
 
 # Instala dependências de build (incluindo Prisma)
 RUN apk add --no-cache python3 make g++

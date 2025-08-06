@@ -28,7 +28,7 @@ RUN apk add --no-cache python3 make g++
 
 # Cache de dependências
 COPY package.json package-lock.json ./
-RUN npm install --production
+RUN npm install  # Sem o --production para garantir que as dependências de desenvolvimento sejam instaladas
 
 # Copia o código
 COPY . .

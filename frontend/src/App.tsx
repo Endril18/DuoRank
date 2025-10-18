@@ -1,22 +1,41 @@
-const user = {
-  name: 'Tiago',
-  imageUrl: 'https://simg-ssl.duolingo.com/ssr-avatars/1181272028/SSR-ktlfTAg7BH/large',
-  imageSize: 90,
-};
+import PoliglotaItem from './PoliglotaItem';
 
-export default function Profile() {
+interface Poliglota {
+  id: number;
+  nome: string;
+  ofensiva: number;
+  avatarUrl?: string;
+}
+
+// Definindo as propriedades que o componente PoliglotaItem vai receber
+interface streakes {
+    poliglota: Poliglota;
+    rank: number;
+}
+
+const poliglotas = [
+  { id: 1, nome: 'Tiago', ofensiva: 120 },
+  { id: 2, nome: 'Maria', ofensiva: 95 },
+  { id: 3, nome: 'João', ofensiva: 80 },
+];
+
+export default function streakes() {
   return (
-    <>
-      <h1>{user.name}</h1>
-      <img
-        className="avatar"
-        src={user.imageUrl}
-        alt={'Foto de ' + user.name}
-        style={{
-          width: user.imageSize,
-          height: user.imageSize
-        }}
-      />
-    </>
+    <div className="App">
+
+      <h1>Streak de Poliglotas</h1>
+
+      <div className="streak-list-container">
+          {/* Usamos a lista para renderizar o PoliglotaItem para cada um */}
+          {poliglotas.map((poliglota, index) => (
+              <PoliglotaItem
+                  key={poliglota.id}
+                  poliglota={poliglota}
+                  rank={index + 1}
+              />
+          ))}
+      </div>
+
+    </div>
   );
 }

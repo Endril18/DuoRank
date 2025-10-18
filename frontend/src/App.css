@@ -1,3 +1,73 @@
-.avatar {
-  border-radius: 50%;
+.App {
+  max-width: 1000px; /* Reduzindo um pouco a largura máxima para a tabela */
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.App h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+/* -------------------- ESTILOS PARA A TABELA -------------------- */
+
+.streak-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Espaço entre as linhas */
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.poliglota-item-row {
+  display: flex;
+  align-items: center; /* Alinha os itens verticalmente */
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+}
+
+.poliglota-item-row:last-child {
+  border-bottom: none; /* Remove a linha do último item */
+}
+
+.poliglota-item-row:hover {
+  background-color: #f7f7f7;
+}
+
+/* 1. Avatar Pequeno */
+.avatar-pequeno {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+/* 2. Nome e Rank */
+.info-principal {
+    flex-grow: 1; /* Permite que o nome ocupe o máximo de espaço */
+    text-align: left;
+}
+.nome-poliglota {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #333;
+}
+
+/* 4. Ofensiva com Ícone (Alinhado à direita) */
+.ofensiva-container {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ff9600; /* Laranja da Ofensiva */
+    gap: 5px;
+}
+.ofensiva-icon {
+    font-size: 1.5rem; /* Ícone maior */
 }

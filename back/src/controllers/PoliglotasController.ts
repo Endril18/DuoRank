@@ -110,15 +110,23 @@ class PoliglotasController {
     }
 
     async remover(req: Request, res: Response, next: NextFunction) {
-        try {
-            const id = Number(req.params.id);
-            await this.service.remover(id);
-            return res.status(204).send();
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({ error: "Erro ao remover." });
+    try {
+        const id = Number(req.params.id);
+        await this.service.remover(id); // Tenta remover o poliglota
+
+        return res.status(200).json({ message: "Remoção realizada com sucesso." });
+
+    } catch (error) {
+        console.log(error);
+
+        // Verifica se a mensagem de erro contém a string 'Poliglota não encontrado'
+        if (error instanceof Error && error.message.includes('Poliglota não encontrado')) {
+            return res.status(404).json({ error: "Registro não encontrado." });
         }
+
+        return res.status(500).json({ error: "Erro ao remover." });
     }
+}
 }
 
 

@@ -121,9 +121,21 @@ class PoliglotasService {
     }
 
     async remover(id: number) {
-        return await this.prisma.poliglota.delete({where: {id} });
+    const record = await this.prisma.poliglota.findUnique({
+        where: { id },
+    });
+
+    if (!record) {
+        // Mensagem interna para ser capturada no Controller
+        throw new Error('Poliglota não encontrado.');
     }
 
+    await this.prisma.poliglota.delete({
+        where: { id },
+    });
+
+    return true;
+}
     async desconectar() {
         await this.prisma.$disconnect();
     }

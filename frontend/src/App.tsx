@@ -1,31 +1,14 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import PoliglotaItem from './PoliglotaItem';
-import { getStatusAtividade, isPoliglota, type Poliglota } from './types/Poliglota';
+import { adicionarParticipante, atualizarParticipantes, buscarRanking } from './api/poliglotas';
+import type { RankingResponse } from './types/Poliglota';
 import './App.css';
 
-const API_URL = (import.meta.env.VITE_API_BACKEND || 'http://localhost:12110/api/poliglotas').replace(/\/$/, '');
 type Filtro = 'todos' | 'estudaram' | 'pendentes';
-
-async function carregarPoliglotas(): Promise<Poliglota[]> {
-  const response = await fetch(API_URL);
-  if (!response.ok) {
-    throw new Error('Não foi possível carregar os participantes. Verifique se a API está disponível.');
-  }
-
-  const data: unknown = await response.json();
-  if (!Array.isArray(data)) {
-    throw new Error('A resposta da API não tem o formato esperado.');
-  }
-
-  if (!data.every(isPoliglota)) {
-    throw new Error('A resposta da API contém participantes inválidos.');
-  }
-
-  return data;
-}
+const PARTICIPANTES_VAZIOS: RankingResponse['poliglotas'] = [];
 
 export default function App() {
-  const [poliglotas, setPoliglotas] = useState<Poliglota[]>([]);
+  const [ranking, setRanking] = useState<RankingResponse | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
   const [mensagem, setMensagem] = useState('');
@@ -35,35 +18,39 @@ export default function App() {
   const [adicionando, setAdicionando] = useState(false);
   const [atualizando, setAtualizando] = useState(false);
 
-  const recarregar = async () => {
+  const recarregar = useCallback(async () => {
     setErro('');
     try {
-      setPoliglotas(await carregarPoliglotas());
+      setRanking(await buscarRanking());
+      return true;
     } catch (error) {
       setErro(error instanceof Error ? error.message : 'Ocorreu um erro ao carregar os participantes.');
+      return false;
     } finally {
       setCarregando(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     void recarregar();
-  }, []);
+  }, [recarregar]);
 
-  const ordenados = useMemo(
-    () => [...poliglotas].sort((a, b) => b.ofensiva - a.ofensiva || a.nome.localeCompare(b.nome)),
-    [poliglotas],
-  );
-  const estudaramHoje = ordenados.filter((poliglota) => getStatusAtividade(poliglota.ultimaAtividade) === 'hoje').length;
-  const maiorOfensiva = ordenados[0]?.ofensiva ?? 0;
-  const filtrados = ordenados.filter((poliglota) => {
+  const poliglotas = ranking?.poliglotas ?? PARTICIPANTES_VAZIOS;
+  const resumo = ranking?.resumo;
+  const filtrados = useMemo(() => poliglotas.filter((poliglota) => {
     const correspondeBusca = poliglota.nome.toLocaleLowerCase('pt-BR').includes(busca.toLocaleLowerCase('pt-BR'));
     const correspondeFiltro =
       filtro === 'todos' ||
-      (filtro === 'estudaram' && getStatusAtividade(poliglota.ultimaAtividade) === 'hoje') ||
-      (filtro === 'pendentes' && getStatusAtividade(poliglota.ultimaAtividade) !== 'hoje');
+      (filtro === 'estudaram' && poliglota.statusAtividade === 'hoje') ||
+      (filtro === 'pendentes' && poliglota.statusAtividade !== 'hoje');
     return correspondeBusca && correspondeFiltro;
-  });
+  }), [busca, filtro, poliglotas]);
+
+  const dataReferencia = useMemo(() => {
+    if (!ranking?.dataReferencia) return new Date();
+    const [ano, mes, dia] = ranking.dataReferencia.split('-').map(Number);
+    return new Date(ano, mes - 1, dia);
+  }, [ranking?.dataReferencia]);
 
   const adicionarPoliglota = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -74,19 +61,10 @@ export default function App() {
     setErro('');
     setMensagem('');
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: nome }),
-      });
-      if (!response.ok) {
-        const data = await response.json().catch(() => null);
-        throw new Error(data?.error ?? data?.message ?? 'Não foi possível adicionar esse participante.');
-      }
-
+      await adicionarParticipante(nome);
       setUsername('');
-      setMensagem(`@${nome} agora está no seu ranking.`);
-      await recarregar();
+      const recarregado = await recarregar();
+      if (recarregado) setMensagem(`@${nome} agora está no seu ranking.`);
     } catch (error) {
       setErro(error instanceof Error ? error.message : 'Ocorreu um erro ao adicionar o participante.');
     } finally {
@@ -99,12 +77,8 @@ export default function App() {
     setErro('');
     setMensagem('');
     try {
-      const response = await fetch(`${API_URL}/atualizar-todos`, { method: 'POST' });
-      if (!response.ok) {
-        throw new Error('Não foi possível atualizar as ofensivas. Tente novamente.');
-      }
-      await recarregar();
-      setMensagem('Ofensivas atualizadas com sucesso.');
+      await atualizarParticipantes();
+      if (await recarregar()) setMensagem('Ofensivas atualizadas com sucesso.');
     } catch (error) {
       setErro(error instanceof Error ? error.message : 'Ocorreu um erro ao atualizar os dados.');
     } finally {
@@ -121,7 +95,7 @@ export default function App() {
         </a>
         <span className="today-label">
           <span className="today-dot" />
-          {new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date())}
+          {new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).format(dataReferencia)}
         </span>
       </header>
 
@@ -137,15 +111,28 @@ export default function App() {
       <section className="stats-grid" aria-label="Resumo do grupo">
         <article className="stat-card">
           <span className="stat-icon stat-icon-green" aria-hidden="true">♧</span>
-          <div><p>Participantes</p><strong>{poliglotas.length}</strong></div>
+          <div><p>Participantes</p><strong>{resumo?.totalPoliglotas ?? '—'}</strong></div>
         </article>
         <article className="stat-card">
           <span className="stat-icon stat-icon-orange" aria-hidden="true">✓</span>
-          <div><p>Estudaram hoje</p><strong>{estudaramHoje}<small> / {poliglotas.length}</small></strong></div>
+          <div className="stat-progress-copy">
+            <p>Estudaram hoje</p>
+            <strong>{resumo?.estudaramHoje ?? '—'}<small> / {resumo?.totalPoliglotas ?? '—'}</small></strong>
+            <div
+              className="stat-progress"
+              role="progressbar"
+              aria-label="Progresso diário do grupo"
+              aria-valuenow={resumo?.percentualAtividadeHoje ?? 0}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <span style={{ width: `${resumo?.percentualAtividadeHoje ?? 0}%` }} />
+            </div>
+          </div>
         </article>
         <article className="stat-card">
           <span className="stat-icon stat-icon-yellow" aria-hidden="true">🔥</span>
-          <div><p>Maior ofensiva</p><strong>{maiorOfensiva}<small> dias</small></strong></div>
+          <div><p>Maior ofensiva</p><strong>{resumo?.maiorOfensiva ?? '—'}<small>{resumo ? ' dias' : ''}</small></strong></div>
         </article>
       </section>
 
@@ -187,11 +174,15 @@ export default function App() {
                   <PoliglotaItem
                     key={poliglota.id}
                     poliglota={poliglota}
-                    rank={ordenados.findIndex((item) => item.id === poliglota.id) + 1}
                   />
                 ))}
               </>
-            ) : poliglotas.length === 0 ? (
+            ) : ranking === null && erro ? (
+              <div className="empty-state">
+                <strong>Ranking indisponível</strong>
+                <span>Não foi possível consultar os participantes agora. Tente novamente após verificar a conexão com a API.</span>
+              </div>
+            ) : (resumo?.totalPoliglotas ?? 0) === 0 ? (
               <div className="empty-state">
                 <span className="empty-emoji" aria-hidden="true">🌱</span>
                 <strong>Seu grupo começa com você</strong>

@@ -1,0 +1,19 @@
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: duorank_dev
+      POSTGRES_USER: duorank_dev
+      POSTGRES_PASSWORD: duorank_dev
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - duorank_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U duorank_dev -d duorank_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  duorank_dev_data:

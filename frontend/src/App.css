@@ -195,6 +195,27 @@
   letter-spacing: 0;
 }
 
+.stat-progress-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.stat-progress {
+  height: 4px;
+  overflow: hidden;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: #eaf1ea;
+}
+
+.stat-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #39a85b, #70ca72);
+  transition: width 0.3s ease;
+}
+
 .content-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.8fr) minmax(255px, 0.82fr);
@@ -499,6 +520,15 @@
 .status-atrasada .status-dot,
 .status-sem-registro .status-dot {
   background: #c3ccc4;
+}
+
+.status-futura .status-dot {
+  background: #d37868;
+  box-shadow: 0 0 0 3px #fff0ed;
+}
+
+.status-futura strong {
+  color: #a55c4f;
 }
 
 .empty-state {

@@ -11,6 +11,7 @@ const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => P
     };
 
 // Rotas da API
+router.get("/ranking", asyncHandler((req, res, next) => controller.ranking(req, res, next)));
 router.get("/", asyncHandler((req, res, next) => controller.listar(req, res, next)));
 router.post("/", asyncHandler((req, res, next) => controller.criar(req, res, next)));
 router.get("/buscar/:username", asyncHandler((req, res, next) => controller.buscar(req, res, next)));

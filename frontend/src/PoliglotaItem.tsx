@@ -1,24 +1,24 @@
-import { formatarDataAtividade, getStatusAtividade, type Poliglota } from './types/Poliglota';
+import { formatarDataAtividade, type PoliglotaRanqueado } from './types/Poliglota';
 
 interface PoliglotaItemProps {
-  poliglota: Poliglota;
-  rank: number;
+  poliglota: PoliglotaRanqueado;
 }
 
 const statusTexto = {
   hoje: 'Estudou hoje',
-  ontem: 'Estudou ontem · hoje é dia de manter',
-  atrasada: 'Ofensiva em risco',
+  ontem: 'Ainda dá tempo hoje',
+  atrasada: 'Sem atividade recente',
   'sem-registro': 'Ainda sem atividade',
+  futura: 'Data de atividade futura',
 };
 
-export default function PoliglotaItem({ poliglota, rank }: PoliglotaItemProps) {
-  const status = getStatusAtividade(poliglota.ultimaAtividade);
+export default function PoliglotaItem({ poliglota }: PoliglotaItemProps) {
+  const { statusAtividade: status } = poliglota;
   const iniciais = poliglota.nome.slice(0, 2).toLocaleUpperCase('pt-BR');
 
   return (
     <article className="poliglota-item-row">
-      <span className={`rank-number ${rank <= 3 ? 'top-rank' : ''}`}>{String(rank).padStart(2, '0')}</span>
+      <span className={`rank-number ${poliglota.rank <= 3 ? 'top-rank' : ''}`}>{String(poliglota.rank).padStart(2, '0')}</span>
       <div className="avatar" aria-hidden="true">{iniciais}</div>
       <div className="info-principal">
         <strong className="nome-poliglota">{poliglota.nome}</strong>

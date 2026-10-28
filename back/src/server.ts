@@ -9,8 +9,16 @@ dotenv.config();
 const app = express();
 
 // Middlewares
-// Configuração do CORS para permitir o frontend
-app.use(cors({ origin: "http://localhost:5173" }));
+const allowedOrigins = (process.env.CORS_ORIGINS || "http://localhost:5173,http://127.0.0.1:5173")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+app.use(cors({
+    origin: (origin, callback) => {
+        callback(null, !origin || allowedOrigins.includes(origin));
+    },
+}));
 app.use(express.json()); // Corrigido o erro de digitação
 
 // Rotas

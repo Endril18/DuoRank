@@ -91,8 +91,16 @@ class PoliglotasController {
             res.json(poliglotas);
         } catch (error) {
             res.status(500).json({ error: error.message });
-        } finally {
-            await this.service.desconectar(); // Limpeza
+        }
+    }
+
+    async ranking(req: Request, res: Response, next: NextFunction) {
+        try {
+            const ranking = await this.service.obterRanking();
+            return res.json(ranking);
+        } catch (error) {
+            console.error("Erro ao gerar ranking:", error);
+            return res.status(500).json({ error: "Erro ao carregar o ranking." });
         }
     }
 

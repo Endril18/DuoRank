@@ -7,7 +7,28 @@ export interface Poliglota {
   ultimaAtividade: string | null;
 }
 
-export type StatusAtividade = 'hoje' | 'ontem' | 'atrasada' | 'sem-registro';
+export type StatusAtividade = 'hoje' | 'ontem' | 'atrasada' | 'sem-registro' | 'futura';
+
+export interface PoliglotaRanqueado extends Poliglota {
+  rank: number;
+  statusAtividade: StatusAtividade;
+  diasDesdeAtividade: number | null;
+}
+
+export interface ResumoRanking {
+  totalPoliglotas: number;
+  estudaramHoje: number;
+  pendentesHoje: number;
+  percentualAtividadeHoje: number;
+  maiorOfensiva: number;
+}
+
+export interface RankingResponse {
+  dataReferencia: string;
+  timeZone: string;
+  resumo: ResumoRanking;
+  poliglotas: PoliglotaRanqueado[];
+}
 
 export function isPoliglota(value: unknown): value is Poliglota {
   if (typeof value !== 'object' || value === null) return false;
@@ -23,25 +44,40 @@ export function isPoliglota(value: unknown): value is Poliglota {
   );
 }
 
-export function getStatusAtividade(ultimaAtividade: string | null, hoje = new Date()): StatusAtividade {
-  if (!ultimaAtividade) return 'sem-registro';
+function isStatusAtividade(value: unknown): value is StatusAtividade {
+  return value === 'hoje' || value === 'ontem' || value === 'atrasada' || value === 'sem-registro' || value === 'futura';
+}
 
-  const data = ultimaAtividade.slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return 'sem-registro';
+function isPoliglotaRanqueado(value: unknown): value is PoliglotaRanqueado {
+  if (!isPoliglota(value)) return false;
 
-  const [ano, mes, dia] = data.split('-').map(Number);
-  const [anoHoje, mesHoje, diaHoje] = [
-    hoje.getFullYear(),
-    hoje.getMonth() + 1,
-    hoje.getDate(),
-  ];
-  const diaAtividade = Date.UTC(ano, mes - 1, dia);
-  const diaAtual = Date.UTC(anoHoje, mesHoje - 1, diaHoje);
-  const diasDesdeAtividade = Math.floor((diaAtual - diaAtividade) / 86_400_000);
+  const poliglota = value as Poliglota & Record<string, unknown>;
+  return (
+    Number.isInteger(poliglota.rank) &&
+    isStatusAtividade(poliglota.statusAtividade) &&
+    (typeof poliglota.diasDesdeAtividade === 'number' || poliglota.diasDesdeAtividade === null)
+  );
+}
 
-  if (diasDesdeAtividade <= 0) return 'hoje';
-  if (diasDesdeAtividade === 1) return 'ontem';
-  return 'atrasada';
+export function isRankingResponse(value: unknown): value is RankingResponse {
+  if (typeof value !== 'object' || value === null) return false;
+
+  const ranking = value as Record<string, unknown>;
+  if (typeof ranking.resumo !== 'object' || ranking.resumo === null || !Array.isArray(ranking.poliglotas)) {
+    return false;
+  }
+
+  const resumo = ranking.resumo as Record<string, unknown>;
+  return (
+    typeof ranking.dataReferencia === 'string' &&
+    typeof ranking.timeZone === 'string' &&
+    Number.isInteger(resumo.totalPoliglotas) &&
+    Number.isInteger(resumo.estudaramHoje) &&
+    Number.isInteger(resumo.pendentesHoje) &&
+    Number.isInteger(resumo.percentualAtividadeHoje) &&
+    Number.isInteger(resumo.maiorOfensiva) &&
+    ranking.poliglotas.every(isPoliglotaRanqueado)
+  );
 }
 
 export function formatarDataAtividade(ultimaAtividade: string | null): string {

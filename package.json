@@ -1,7 +1,11 @@
 {
   "type": "commonjs",
   "scripts": {
-    "dev": "tsx api/src/server.ts",
+    "dev": "npm run dev:frontend",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd back && npm run dev",
+    "db:dev": "docker compose -f compose.dev.yml up -d",
+    "db:dev:stop": "docker compose -f compose.dev.yml stop database",
     "build": "tsc",
     "start": "node dist/server.js"
   },

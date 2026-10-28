@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client"; //importar o client do prisma que vai lidar com o banco de dados
 import { DadosDuolingo } from "../types/poliglota"; // Importar o tipo de dados do Duolingo
 import { PoliglotaCreateParams } from "../types/poliglotaparametros";
+import { obterAtividadeDiaria, obterDataAtual } from "../utils/streak.js";
 import axios from  "axios";
 import dotenv from 'dotenv';
 
@@ -99,6 +100,34 @@ class PoliglotasService {
         return await this.prisma.poliglota.findMany();
     }
 
+    async obterRanking() {
+        const timeZone = process.env.APP_TIME_ZONE || 'America/Sao_Paulo';
+        const agora = new Date();
+        const poliglotas = await this.prisma.poliglota.findMany();
+        const ranking = poliglotas
+            .map((poliglota) => ({
+                ...poliglota,
+                ...obterAtividadeDiaria(poliglota.ultimaAtividade, agora, timeZone),
+            }))
+            .sort((a, b) => b.ofensiva - a.ofensiva || b.xp - a.xp || a.nome.localeCompare(b.nome))
+            .map((poliglota, index) => ({ ...poliglota, rank: index + 1 }));
+        const estudaramHoje = ranking.filter((poliglota) => poliglota.statusAtividade === 'hoje').length;
+        const total = ranking.length;
+
+        return {
+            dataReferencia: obterDataAtual(agora, timeZone),
+            timeZone,
+            resumo: {
+                totalPoliglotas: total,
+                estudaramHoje,
+                pendentesHoje: total - estudaramHoje,
+                percentualAtividadeHoje: total === 0 ? 0 : Math.round((estudaramHoje / total) * 100),
+                maiorOfensiva: ranking.reduce((maior, poliglota) => Math.max(maior, poliglota.ofensiva), 0),
+            },
+            poliglotas: ranking,
+        };
+    }
+
     async editar(id: number, nome: string, idiomas: string, xp?: number, ofensiva?: number, ultimaAtividade?: Date) {
         const poliglotaAntigo = await this.prisma.poliglota.findUnique({
             where: { id },
@@ -143,4 +172,3 @@ class PoliglotasService {
 }
 
 export default PoliglotasService;
-

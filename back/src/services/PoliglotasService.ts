@@ -67,6 +67,7 @@ class PoliglotasService {
             }
         } catch (error) {
             console.error("Erro ao atualizar poliglotas:", error);
+            throw error;
         }
     }
 
@@ -142,5 +143,4 @@ class PoliglotasService {
 }
 
 export default PoliglotasService;
-
 
